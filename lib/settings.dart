@@ -9,14 +9,21 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
 
   TextEditingController _numberBitcoin = TextEditingController();
+  String _currency;
 
   _save() async {
-    
-    double btAmount = double.parse(_numberBitcoin.text);
+
+    String saveCurr = _currency;
 
     final prefs = await SharedPreferences.getInstance();
 
-    await prefs.setDouble('bitcoin', btAmount);
+    if (_numberBitcoin.text != '') {
+      double btAmount = double.parse(_numberBitcoin.text);
+      await prefs.setDouble('bitcoin', btAmount);
+    }
+
+    print('RETORNO: ' + _numberBitcoin.text);
+    await prefs.setString('currency', saveCurr);
 
     Navigator.pop(context);
 
@@ -49,6 +56,35 @@ class _SettingsState extends State<Settings> {
                 ),
                 controller: _numberBitcoin,
               )
+            ),
+            Padding(
+              padding: EdgeInsets.only(bottom: 16),
+              child: Text(
+                'Selecione a moeda desejada:',
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+            ),
+            RadioListTile(
+              title: Text('R\$ - Real Brasileiro'),
+              value: 'real',
+              groupValue: _currency,
+              onChanged: (String currency){
+              setState(() {
+                _currency = currency;
+              });
+              },
+            ),
+            RadioListTile(
+              title: Text('US\$ - Dólar Americano'),
+              value: 'dolar',
+              groupValue: _currency,
+              onChanged: (String currency){
+              setState(() {
+                _currency = currency;
+              });
+              },
             ),
             RaisedButton(
               color: Colors.orange,

@@ -16,6 +16,7 @@ class _HomeState extends State<Home> {
 
   _getCurrency() async {
 
+    String getCurrPref;
     String urlApi = 'https://blockchain.info/ticker';
     http.Response response;
   
@@ -26,10 +27,17 @@ class _HomeState extends State<Home> {
     final prefs = await SharedPreferences.getInstance();
 
     setState(() {
-      _preco = contacao['BRL']['15m'];
+
+      getCurrPref = prefs.getString('currency');
+
+      if( getCurrPref == 'dolar'){
+        _preco = contacao['USD']['15m'];
+      }
+      else _preco = contacao['BRL']['15m']; // standard
 
       // get bitcoin amount in prefs
-      _btAmount = prefs.getDouble('bitcoin');
+      _btAmount = prefs.getDouble('bitcoin') ?? 0.00;
+      
     });
     
   }
