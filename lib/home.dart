@@ -1,6 +1,8 @@
+import 'package:bitcoin/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -9,7 +11,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   
-    String _preco = '0.00';
+    double _preco = 0.00;
+    double _btAmount = 0.00;
 
   _getCurrency() async {
 
@@ -19,8 +22,14 @@ class _HomeState extends State<Home> {
     response = await http.get(urlApi);
     Map <String, dynamic> contacao = json.decode(response.body);
 
+    // get bitcoin amount in prefs
+    final prefs = await SharedPreferences.getInstance();
+
     setState(() {
-      _preco = contacao['BRL']['15m'].toString();
+      _preco = contacao['BRL']['15m'];
+
+      // get bitcoin amount in prefs
+      _btAmount = prefs.getDouble('bitcoin');
     });
     
   }
@@ -30,8 +39,22 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Bitcoin'),
+        //title: Text('Bitcoin'),
         backgroundColor: Colors.blueGrey[800],
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.settings),
+            color: Colors.orange,
+            onPressed: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Settings(),
+                ),
+              );
+            },
+          ),  
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.all(32),
@@ -44,10 +67,21 @@ class _HomeState extends State<Home> {
             Padding(
               padding: EdgeInsets.all(35),
               child: Text(
-                'R\$ ' + _preco,
+                'R\$ ' + _preco.toString(),
                 style: TextStyle(
                   color: Colors.blueGrey,
                   fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(bottom: 35),
+              child: Text(
+                'Saldo: R\$ ' + (_btAmount * _preco).toStringAsFixed(2),
+                style: TextStyle(
+                  color: Colors.blueGrey,
+                  fontSize: 25,
                   fontWeight: FontWeight.bold,
                 ),
               ),
